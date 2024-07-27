@@ -1,35 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/* eslint-disable react/react-in-jsx-scope */
 
-function App() {
-  const [count, setCount] = useState(0)
+import { ChangeEvent, FormEvent, useState } from "react";
+import TodoList from "./components/TodoList";
+import TodoForm from "./components/TodoForm";
+import { type Todo } from "./types/Todo";
+
+const todos = [
+  {
+    id: 1, 
+    title: 'Leer',
+    isDone: false,
+  },
+  {
+    id: 2, 
+    title: 'Entrenar',
+    isDone: false,
+  },
+  {
+    id: 3, 
+    title: 'Cocinar',
+    isDone: false,
+  }
+]
+
+
+const App = (): JSX.Element => {
+
+  // STATE HOOKS
+  const [todos, setTodo] = useState<Todo[]>([])
+  const [text, setText] = useState<string>('')
+
+  // HANDLER EVENT FUNCTIONS & TOGGLER
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setText(event.target.value);
+  }
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    setTodo([...todos, 
+      {
+        id: todos.length + 1,
+        title: text,
+        isDone: false
+      }
+    ])
+    setText('');
+  }
+
+  const checkTodo = (id: number) => {
+    setTodo(todos => 
+      todos.map(todo => 
+        todo.id === id ? {...todo, isDone: true} : todo
+      ))
+  }
+
+  const deleteTodo = (id: number) => {
+    setTodo(todos => 
+      todos.filter(todo => todo.id !== id)
+    )
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <TodoForm text={text} handleChange={handleChange} handleSubmit={handleSubmit}/> 
+      <TodoList todos={todos} checkTodo={checkTodo} deleteTodo={deleteTodo}/>
     </>
   )
-}
+};
 
-export default App
+export default App;
